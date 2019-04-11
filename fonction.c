@@ -1,40 +1,9 @@
-#include <stdio.h>
-#include  <stdlib.h>
-#include  <SDL/SDL.h>
-#include <SDL/SDL_image.h>
-#include "jeux.h"
-
-SDL_Surface * Init_imagedefond( ecran *image ,ecran *positionecran ,  int x , int y) 
- {
-	       ecran.image =  IMG_Load("map.png"); 
-
-	      if  ( ecran.image==  NULL )  { 
-         printf ( "Can not load image of tux: %s \n " , SDL_GetError ()); 
-         exit ( 1 ); 
-                  } 
-     else 
-     {
- 
-     positionecran->x  =  x ; 
-     positionecran->y  = y ;
-     positionecran->h= ecran.image->h ;
-     positionecran->w= ecran.image->w ;  
-       }
-     
-     return (ecran.image) ; 
-}
-
- void Show_imagedefond (ecran *image, SDL_Surface *screen,ecran positionecran ) 
-  {
-
-	 SDL_BlitSurface(ecran.image, NULL, ecran.screen, &ecran.positionecran);
-   }
-
-
-
-      /* Quitte la SDL */
-      SDL_Quit();
-
+#include<stdio.h>
+#include"SDL/SDL.h"
+#include<SDL/SDL_image.h>
+#include<SDL/SDL_mixer.h>
+#include <SDL/SDL_ttf.h>
+#include "fonction.h"
 
 void initialiser_score(score *score,ecran ecran)
 {
@@ -46,7 +15,7 @@ score->sscore;
 sprintf(ch,"%d XP",score->sscore);
 score->score=TTF_RenderText_Solid(score->font,ch,color);
 SDL_BlitSurface(score->score,NULL,ecran.screen,&score->position_score);
-SDL_Delay(1000);
+SDL_Delay(100);
 SDL_Flip(ecran.screen);
 TTF_Quit();
 }
@@ -66,6 +35,106 @@ int vie(score *score , int v)
  return v;
 }
 
+int collision (perso *p, rock *r)
+{
+if (p->posper.y>=r->posrock.y+r->posrock.h)
+return 0;
+if (p->posper.x>=r->posrock.x+r->posrock.w)
+return 0;
+if (p->posper.y+p->posper.h<=r->posrock.y)
+return 0 ;
+if (p->posper.x+p->posper.w<=r->posrock.x)
+return 0 ;
+return 1 ;
+}
+
+void deplacement(perso *p,SDL_Event event,int done,int *detection,rock *r,SDL_Event *felsa ,ecran ecran)
+{
+while(SDL_PollEvent(&event))
+{switch(event.type)
+ { case SDL_QUIT:
+    done=0;
+   break;
+   case SDL_KEYDOWN:
+    switch(event.key.keysym.sym)
+     {
+      case  SDLK_UP:
+      
+           if(*detection==0)
+          {
+          p->posper.y-=4;
+         *detection=collision(p,r);
+      
+          }
+         else if((*detection==1) && (felsa->key.keysym.sym!=event.key.keysym.sym))
+         {
+          p->posper.y-=4;
+         *detection=collision(p,r);
+         
+         }
+         
+         felsa->key.keysym.sym=event.key.keysym.sym;
+        break;
+       case SDLK_DOWN:
+         
+           if(*detection==0)
+          {
+          p->posper.y+=4;
+         *detection=collision(p,r);
+         
+          }
+         else if((*detection==1) && (felsa->key.keysym.sym!=event.key.keysym.sym))
+         {
+          p->posper.y+=4;
+         *detection=collision(p,r);
+       
+         }
+        
+         felsa->key.keysym.sym=event.key.keysym.sym;
+        break;
+       case SDLK_RIGHT:
+         
+            if(*detection==0)
+          {
+          p->posper.x+= 4;
+         *detection=collision(p,r);
+         
+          }
+         else if((*detection==1) && (felsa->key.keysym.sym!=event.key.keysym.sym))
+         {
+          p->posper.x+= 4;
+         *detection=collision(p,r);
+        
+         }
+         
+
+         felsa->key.keysym.sym=event.key.keysym.sym;
+
+
+        break;
+       case SDLK_LEFT:
+            
+            if(*detection==0)
+          {
+          p->posper.x-= 4;
+         *detection=collision(p,r);
+   
+          }
+         else if((*detection==1) && (felsa->key.keysym.sym!=event.key.keysym.sym))
+         {
+          p->posper.x-= 4;
+         *detection=collision(p,r);
+      
+         }
+        
+         felsa->key.keysym.sym=event.key.keysym.sym;
+
+
+         break;
+}
+}
+}
+}
 
 
 void times(score *score,ecran ecran)
@@ -96,11 +165,4 @@ score->tmp = 0 ;
 TTF_Quit();
 }
 }
-
-
-
-
-
-
-
     
